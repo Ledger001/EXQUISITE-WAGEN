@@ -1,0 +1,99 @@
+// This is a Prisma schema file for defining the database models.
+
+// Enums if necessary
+
+enum VehicleType {
+    CAR
+    TRUCK
+    MOTORCYCLE
+}
+
+enum ServiceType {
+    MAINTENANCE
+    REPAIR
+    INSPECTION
+}
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}
+
+// User model
+model User {
+    id       Int    @id @default(autoincrement())
+    name     String
+    email    String @unique
+    password String
+
+    vehicles Vehicle[]
+    bookings  Booking[]
+    reviews   Review[]
+    orders    Order[]
+}
+
+// Vehicle model
+model Vehicle {
+    id          Int          @id @default(autoincrement())
+    make        String
+    model       String
+    year        Int
+    type        VehicleType
+    ownerId     Int
+
+    owner       User         @relation(fields: [ownerId], references: [id])
+}
+
+// Service model
+model Service {
+    id          Int          @id @default(autoincrement())
+    type        ServiceType
+    description String
+    cost        Float
+}
+
+// Booking model
+model Booking {
+    id          Int      @id @default(autoincrement())
+    userId      Int
+    serviceId   Int
+    date        DateTime
+
+    user        User     @relation(fields: [userId], references: [id])
+    service     Service  @relation(fields: [serviceId], references: [id])
+}
+
+// Order model
+model Order {
+    id          Int      @id @default(autoincrement())
+    userId      Int
+    amount      Float
+    status      PaymentStatus
+    date        DateTime
+
+    user        User     @relation(fields: [userId], references: [id])
+}
+
+// Review model
+model Review {
+    id          Int      @id @default(autoincrement())
+    userId      Int
+    vehicleId   Int
+    rating      Int  @default(0)
+    comment     String?
+
+    user        User     @relation(fields: [userId], references: [id])
+    vehicle     Vehicle  @relation(fields: [vehicleId], references: [id])
+}
+
+// Payment model
+model Payment {
+    id          Int      @id @default(autoincrement())
+    orderId     Int
+    status      PaymentStatus
+    method      String
+    date        DateTime
+
+    order       Order    @relation(fields: [orderId], references: [id])
+}
